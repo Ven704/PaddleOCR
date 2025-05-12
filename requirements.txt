@@ -1,3 +1,4 @@
+uvicorn
 shapely
 scikit-image
 pyclipper
