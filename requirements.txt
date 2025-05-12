@@ -1,3 +1,7 @@
+fastapi
+uvicorn
+paddleocr
+paddlepaddle
 uvicorn
 shapely
 scikit-image
