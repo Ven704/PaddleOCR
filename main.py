@@ -1,21 +1,23 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
-import paddleocr
-from PIL import Image
+from paddleocr import PaddleOCR
 import io
+from PIL import Image
+import numpy as np
 
 app = FastAPI()
-ocr = paddleocr.OCR()
+ocr = PaddleOCR(use_angle_cls=True, lang='en')  # You can customize this
 
 @app.post("/ocr/")
-async def read_image(file: UploadFile = File(...)):
-    image_data = await file.read()
-    image = Image.open(io.BytesIO(image_data)).convert("RGB")
-    result = ocr.ocr(image)
+async def ocr_api(file: UploadFile = File(...)):
+    contents = await file.read()
+    image = Image.open(io.BytesIO(contents)).convert("RGB")
+    image_np = np.array(image)
 
-    texts = []
+    result = ocr.ocr(image_np, cls=True)
+    text_results = []
     for line in result:
-        for box in line:
-            texts.append(box[1][0])  # box[1][0] is the detected text
+        for word_info in line:
+            text_results.append(word_info[1][0])  # The recognized text
 
-    return JSONResponse(content={"text": texts})
+    return JSONResponse(content={"text": text_results})
